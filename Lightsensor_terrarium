@@ -1,0 +1,27 @@
+#include <BH1750.h>
+
+BH1750 sensor(0x23, Wire);
+
+double brightnessdata = 0; //creates a variable that can be made into a particle variable
+
+void setup() {
+  sensor.begin();
+
+  sensor.set_sensor_mode(BH1750::forced_mode_high_res2); //configures the sensor
+  
+  Particle.variable("lightSensor", brightnessdata);
+  
+  Serial.begin();
+}
+
+void loop() {
+  sensor.make_forced_measurement(); //takes a brightness measurement
+
+  brightnessdata = sensor.get_light_level();
+
+  String lightdata = String(brightnessdata);
+  
+  Particle.publish("light", lightdata, PRIVATE); //publishes an event with the brightness data
+ 
+  delay(5000); //waits 5 minutes between measurements
+}
